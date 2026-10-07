@@ -1,0 +1,33 @@
+{{define "dashboard.html"}}
+{{template "head" .}}
+<div class="app-shell">
+  {{template "sidebar" .}}
+  <main class="main">
+    {{template "header" .}}
+    <section class="content">
+      <div class="status-banner healthy">
+        <div><span class="status-icon">✓</span></div>
+        <div><p class="eyebrow">Current platform status</p><h2>All systems are operational</h2></div>
+        <span class="updated">Updated just now</span>
+      </div>
+      <section class="metric-grid" aria-label="Incident summary">
+        <article class="metric-card"><span>Active incidents</span><strong>—</strong><small>Live database metric</small></article>
+        <article class="metric-card critical"><span>Critical incidents</span><strong>—</strong><small>SEV-1 attention required</small></article>
+        <article class="metric-card"><span>Resolved</span><strong>—</strong><small>Resolution history</small></article>
+        <article class="metric-card"><span>Monitored services</span><strong>—</strong><small>Across all teams</small></article>
+      </section>
+      <section class="two-column">
+        <article class="panel">
+          <div class="panel-header"><div><p class="eyebrow">Live operations</p><h2>Recent incidents</h2></div><a href="/incidents">View all</a></div>
+          <div class="empty-state"><span>◎</span><h3>Database integration next</h3><p>Incident activity will appear here as the platform is configured.</p></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header"><div><p class="eyebrow">Infrastructure</p><h2>Service health</h2></div><a href="/services">Manage</a></div>
+          <div class="empty-state compact"><span>◇</span><h3>No services monitored yet</h3><p>Add a service to begin tracking its health.</p></div>
+        </article>
+      </section>
+    </section>
+  </main>
+</div>
+{{template "foot" .}}
+{{end}}

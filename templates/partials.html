@@ -1,0 +1,55 @@
+{{define "head"}}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="IncidentHub incident management and service status platform">
+  <title>{{.Title}} · IncidentHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+{{end}}
+
+{{define "sidebar"}}
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="/" aria-label="IncidentHub home">
+    <span class="brand-mark">IH</span>
+    <span><strong>IncidentHub</strong><small>Operations Center</small></span>
+  </a>
+  <nav class="nav" aria-label="Primary navigation">
+    <a class="nav-link {{if eq .CurrentPage "dashboard"}}active{{end}}" href="/">Dashboard</a>
+    <a class="nav-link {{if eq .CurrentPage "incidents"}}active{{end}}" href="/incidents">Incidents</a>
+    <a class="nav-link {{if eq .CurrentPage "services"}}active{{end}}" href="/services">Services</a>
+    <a class="nav-link {{if eq .CurrentPage "analytics"}}active{{end}}" href="/analytics">Analytics</a>
+    <a class="nav-link {{if eq .CurrentPage "status"}}active{{end}}" href="/status">Status Page</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="live-dot"></span>
+    <span>Platform monitoring active</span>
+  </div>
+</aside>
+{{end}}
+
+{{define "header"}}
+<header class="topbar">
+  <button class="menu-button" id="menuButton" aria-label="Toggle navigation">☰</button>
+  <div>
+    <p class="eyebrow">Engineering operations</p>
+    <h1>{{.Title}}</h1>
+  </div>
+  <div class="topbar-actions">
+    <span class="environment"><span></span> Production</span>
+    <a class="button primary" href="/incidents/new">Report incident</a>
+  </div>
+</header>
+{{end}}
+
+{{define "foot"}}
+<script src="/static/js/app.js" defer></script>
+</body>
+</html>
+{{end}}
