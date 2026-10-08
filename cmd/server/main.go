@@ -12,10 +12,12 @@ import (
 
 func main() {
 	addr := envOrDefault("ADDR", ":8080")
-	app, err := handlers.New()
+	databasePath := envOrDefault("DATABASE_PATH", "data/incidenthub.db")
+	app, err := handlers.New(databasePath)
 	if err != nil {
 		log.Fatalf("initialize application: %v", err)
 	}
+	defer app.Close()
 
 	server := &http.Server{
 		Addr:              addr,

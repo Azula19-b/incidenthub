@@ -1,13 +1,17 @@
 package handlers
 
 import (
+	"context"
 	"html/template"
 	"net/http"
 	"time"
+
+	"github.com/Azula19-b/incidenthub/internal/database"
 )
 
 type App struct {
 	templates *template.Template
+	store     *database.Store
 }
 
 type pageData struct {
@@ -16,13 +20,23 @@ type pageData struct {
 	Now         time.Time
 }
 
-func New() (*App, error) {
+func New(databasePath string) (*App, error) {
 	templates, err := template.ParseGlob("templates/*.html")
 	if err != nil {
 		return nil, err
 	}
-	return &App{templates: templates}, nil
+	store, err := database.Open(databasePath)
+	if err != nil {
+		return nil, err
+	}
+	if err := store.Seed(context.Background()); err != nil {
+		store.Close()
+		return nil, err
+	}
+	return &App{templates: templates, store: store}, nil
 }
+
+func (a *App) Close() error { return a.store.Close() }
 
 func (a *App) Routes() http.Handler {
 	mux := http.NewServeMux()
