@@ -98,6 +98,7 @@ func (a *App) Routes() http.Handler {
 	mux.HandleFunc("GET /analytics", a.analytics)
 	a.registerServiceRoutes(mux)
 	a.registerIncidentRoutes(mux)
+	a.registerStatusRoutes(mux)
 	return mux
 }
 

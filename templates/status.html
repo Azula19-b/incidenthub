@@ -1,0 +1,12 @@
+{{define "status.html"}}
+{{template "head" .}}
+<div class="public-status">
+  <header class="status-header"><a class="status-brand" href="/status"><span class="brand-mark">IH</span><strong>IncidentHub</strong><span>System Status</span></a><a href="/">Operations dashboard →</a></header>
+  <main class="status-main">
+    <section class="public-hero"><p class="eyebrow">Live service availability</p><h1>IncidentHub System Status</h1><p>Real-time health and incident communication for our platform services.</p></section>
+    <section class="overall-card status-{{statusClass .Metrics.OverallStatus}}"><span class="pulse-ring"></span><div><small>Overall system status</small><h2>{{.Metrics.OverallStatus}}</h2></div><time>Updated live</time></section>
+    <section class="status-section"><div class="status-section-title"><h2>Services</h2><span>{{len .Services}} monitored</span></div><div class="public-service-list">{{range .Services}}<div><span class="health-dot status-{{statusClass .Status}}"></span><span><strong>{{.Name}}</strong><small>{{.OwnerTeam}}</small></span><span class="badge status-{{statusClass .Status}}">{{.Status}}</span></div>{{end}}</div></section>
+    {{if .Active}}<section class="status-section"><div class="status-section-title"><h2>Active incidents</h2><span>{{len .Active}} in progress</span></div><div class="public-incidents">{{range .Active}}<article><div><span class="badge severity-{{statusClass .Severity}}">{{.Severity}}</span><span class="badge incident-{{statusClass .Status}}">{{.Status}}</span></div><h3>{{.Title}}</h3><p>{{.Description}}</p><small>Started {{formatTimestamp .CreatedAt}} · {{range $i, $s := .Services}}{{if $i}}, {{end}}{{$s.Name}}{{end}}</small></article>{{end}}</div></section>{{else}}<div class="no-active"><span>✓</span><div><h2>No active incidents</h2><p>All monitored services are operating normally.</p></div></div>{{end}}
+    {{if .Resolved}}<section class="status-section resolved-section"><div class="status-section-title"><h2>Recently resolved</h2></div>{{range .Resolved}}<div class="resolved-row"><div><strong>{{.Title}}</strong><small>{{range $i, $s := .Services}}{{if $i}}, {{end}}{{$s.Name}}{{end}}</small></div><time>{{formatDate .ResolvedAt}}</time></div>{{end}}</section>{{end}}
+  </main><footer class="status-footer"><span>Powered by IncidentHub</span><span>Transparent operations. Reliable services.</span></footer>
+</div>{{template "foot" .}}{{end}}

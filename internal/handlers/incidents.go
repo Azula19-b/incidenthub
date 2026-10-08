@@ -16,8 +16,12 @@ var incidentStatuses = []models.IncidentStatus{models.IncidentInvestigating, mod
 
 type incidentsPageData struct {
 	pageData
-	Incidents []models.Incident
-	Notice    string
+	Incidents  []models.Incident
+	Services   []models.Service
+	Filter     database.IncidentFilter
+	Severities []models.Severity
+	Statuses   []models.IncidentStatus
+	Notice     string
 }
 
 type incidentFormData struct {
@@ -52,13 +56,26 @@ func (a *App) registerIncidentRoutes(mux *http.ServeMux) {
 }
 
 func (a *App) listIncidents(w http.ResponseWriter, r *http.Request) {
-	incidents, err := a.store.ListIncidents(r.Context(), database.IncidentFilter{})
+	filter := database.IncidentFilter{
+		Search: strings.TrimSpace(r.URL.Query().Get("q")), Severity: r.URL.Query().Get("severity"),
+		Status: r.URL.Query().Get("status"), Sort: r.URL.Query().Get("sort"),
+	}
+	if id, err := strconv.ParseInt(r.URL.Query().Get("service"), 10, 64); err == nil && id > 0 {
+		filter.ServiceID = id
+	}
+	incidents, err := a.store.ListIncidents(r.Context(), filter)
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	services, err := a.store.ListServices(r.Context(), "")
 	if err != nil {
 		a.serverError(w, r, err)
 		return
 	}
 	a.render(w, "incidents.html", incidentsPageData{
 		pageData: pageData{Title: "Incidents", CurrentPage: "incidents"}, Incidents: incidents,
+		Services: services, Filter: filter, Severities: severities, Statuses: incidentStatuses,
 		Notice: r.URL.Query().Get("notice"),
 	})
 }

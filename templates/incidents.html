@@ -2,6 +2,14 @@
 <div class="app-shell">{{template "sidebar" .}}<main class="main">{{template "header" .}}<section class="content">
 {{if .Notice}}<div class="alert success">Incident changes saved successfully.</div>{{end}}
 <div class="section-toolbar"><div><p class="section-note">Track active response work and historical incidents.</p></div><a class="button primary" href="/incidents/new">Report incident</a></div>
+<form class="panel incident-filters" method="get" action="/incidents">
+  <div class="search-field"><label for="q">Search incidents</label><input id="q" type="search" name="q" value="{{.Filter.Search}}" placeholder="Title, description, reporter, owner, or service"></div>
+  <label>Severity<select name="severity"><option value="">All severities</option>{{range .Severities}}<option value="{{.}}" {{if eq $.Filter.Severity (printf "%s" .)}}selected{{end}}>{{.}}</option>{{end}}</select></label>
+  <label>Status<select name="status"><option value="">All statuses</option>{{range .Statuses}}<option value="{{.}}" {{if eq $.Filter.Status (printf "%s" .)}}selected{{end}}>{{.}}</option>{{end}}</select></label>
+  <label>Service<select name="service"><option value="">All services</option>{{range .Services}}<option value="{{.ID}}" {{if eq $.Filter.ServiceID .ID}}selected{{end}}>{{.Name}}</option>{{end}}</select></label>
+  <label>Sort<select name="sort"><option value="newest" {{if eq .Filter.Sort "newest"}}selected{{end}}>Newest</option><option value="oldest" {{if eq .Filter.Sort "oldest"}}selected{{end}}>Oldest</option><option value="severity-desc" {{if eq .Filter.Sort "severity-desc"}}selected{{end}}>Highest severity</option><option value="severity-asc" {{if eq .Filter.Sort "severity-asc"}}selected{{end}}>Lowest severity</option></select></label>
+  <div class="filter-actions"><a class="button secondary" href="/incidents">Reset</a><button class="button primary" type="submit">Apply filters</button></div>
+</form>
 <div class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Status</th><th>Affected services</th><th>Owner</th><th>Created</th><th></th></tr></thead><tbody>
 {{range .Incidents}}<tr><td><a class="record-title" href="/incidents/{{.ID}}">INC-{{printf "%04d" .ID}} · {{.Title}}</a><small>{{.Description}}</small></td><td><span class="badge severity-{{statusClass .Severity}}">{{.Severity}}</span></td><td><span class="badge incident-{{statusClass .Status}}">{{.Status}}</span></td><td>{{range $i, $s := .Services}}{{if $i}}, {{end}}{{$s.Name}}{{end}}</td><td>{{.AssignedOwner}}</td><td>{{formatDate .CreatedAt}}</td><td><a class="table-action" href="/incidents/{{.ID}}">View →</a></td></tr>
 {{else}}<tr><td colspan="7"><div class="empty-state compact"><h3>No incidents found</h3><p>Report an incident when a service needs attention.</p></div></td></tr>{{end}}</tbody></table></div></div>
