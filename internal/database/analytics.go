@@ -11,9 +11,9 @@ import (
 func (s *Store) DashboardMetrics(ctx context.Context) (models.DashboardMetrics, error) {
 	var metrics models.DashboardMetrics
 	err := s.db.QueryRowContext(ctx, `SELECT
-        SUM(CASE WHEN status <> 'Resolved' THEN 1 ELSE 0 END),
-        SUM(CASE WHEN status <> 'Resolved' AND severity = 'SEV-1' THEN 1 ELSE 0 END),
-        SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END),
+		COALESCE(SUM(CASE WHEN status <> 'Resolved' THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN status <> 'Resolved' AND severity = 'SEV-1' THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END), 0),
         COALESCE(AVG(CASE WHEN resolved_at IS NOT NULL THEN
           (julianday(resolved_at) - julianday(created_at)) * 24 END), 0)
         FROM incidents`).Scan(&metrics.ActiveIncidents, &metrics.CriticalIncidents,
@@ -46,12 +46,12 @@ func (s *Store) DashboardMetrics(ctx context.Context) (models.DashboardMetrics, 
 func (s *Store) Analytics(ctx context.Context) (models.Analytics, error) {
 	var analytics models.Analytics
 	err := s.db.QueryRowContext(ctx, `SELECT COUNT(*),
-        SUM(CASE WHEN status <> 'Resolved' THEN 1 ELSE 0 END),
-        SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END),
+		COALESCE(SUM(CASE WHEN status <> 'Resolved' THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END), 0),
         COALESCE(AVG(CASE WHEN resolved_at IS NOT NULL THEN
           (julianday(resolved_at) - julianday(created_at)) * 24 END), 0),
-        SUM(CASE WHEN datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END),
-        SUM(CASE WHEN datetime(created_at) >= datetime('now', '-30 days') THEN 1 ELSE 0 END)
+		COALESCE(SUM(CASE WHEN datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN datetime(created_at) >= datetime('now', '-30 days') THEN 1 ELSE 0 END), 0)
         FROM incidents`).Scan(&analytics.TotalIncidents, &analytics.ActiveIncidents,
 		&analytics.ResolvedIncidents, &analytics.AverageResolutionHrs,
 		&analytics.CreatedLast7Days, &analytics.CreatedLast30Days)

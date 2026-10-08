@@ -21,7 +21,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:              addr,
-		Handler:           middleware.RequestLogger(app.Routes()),
+		Handler:           middleware.RecoverPanic(middleware.SecureHeaders(middleware.RequestLogger(app.Routes()))),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -104,7 +105,7 @@ func (a *App) Routes() http.Handler {
 
 func (a *App) dashboard(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		a.notFound(w, r)
 		return
 	}
 	metrics, err := a.store.DashboardMetrics(r.Context())
@@ -155,8 +156,16 @@ func (a *App) health(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (a *App) render(w http.ResponseWriter, name string, data any) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := a.templates.ExecuteTemplate(w, name, data); err != nil {
+	a.renderStatus(w, name, data, http.StatusOK)
+}
+
+func (a *App) renderStatus(w http.ResponseWriter, name string, data any, status int) {
+	var output bytes.Buffer
+	if err := a.templates.ExecuteTemplate(&output, name, data); err != nil {
 		http.Error(w, "Unable to render page", http.StatusInternalServerError)
+		return
 	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	_, _ = output.WriteTo(w)
 }

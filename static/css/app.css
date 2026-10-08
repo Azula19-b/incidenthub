@@ -200,6 +200,8 @@ td small { display: block; color: var(--muted); max-width: 420px; white-space: n
 .no-active { display: flex; align-items: center; gap: 15px; margin-top: 30px; padding: 24px; background: #eafaf6; border: 1px solid #b9eadd; border-radius: 14px; }.no-active > span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--teal); color: white; font-size: 20px; }.no-active h2, .no-active p { margin: 0; }.no-active p { color: var(--muted); }
 .resolved-section { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 20px; }.resolved-row { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding: 14px 0; }.resolved-row strong, .resolved-row small { display: block; }.resolved-row small, .resolved-row time { color: var(--muted); }
 .status-footer { display: flex; justify-content: space-between; max-width: 1040px; margin: auto; padding: 22px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+.error-page { min-height: 100vh; display: grid; place-content: center; justify-items: center; padding: 30px; text-align: center; background: var(--navy-900); color: white; }
+.error-page .brand-mark { margin-bottom: 24px; }.error-page .error-code { color: var(--aqua); font: 700 16px Manrope; letter-spacing: .16em; }.error-page h1 { margin-bottom: 8px; font-size: clamp(28px, 5vw, 45px); }.error-page > p:not(.error-code) { color: #9db1c8; margin-bottom: 24px; }
 
 @media (max-width: 1000px) {
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
