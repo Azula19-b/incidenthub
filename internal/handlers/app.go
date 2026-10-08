@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Azula19-b/incidenthub/internal/database"
+	"github.com/Azula19-b/incidenthub/internal/models"
 )
 
 type App struct {
@@ -20,8 +23,24 @@ type pageData struct {
 	Now         time.Time
 }
 
+var serviceStatuses = []models.ServiceStatus{
+	models.StatusOperational,
+	models.StatusDegraded,
+	models.StatusPartial,
+	models.StatusMajor,
+	models.StatusMaintenance,
+}
+
 func New(databasePath string) (*App, error) {
-	templates, err := template.ParseGlob("templates/*.html")
+	functions := template.FuncMap{
+		"statusClass": func(value any) string {
+			class := strings.ToLower(fmt.Sprint(value))
+			class = strings.NewReplacer(" ", "-", "-", "").Replace(class)
+			return class
+		},
+		"formatDate": func(value time.Time) string { return value.Format("Jan 2, 2006") },
+	}
+	templates, err := template.New("pages").Funcs(functions).ParseGlob("templates/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -43,6 +62,7 @@ func (a *App) Routes() http.Handler {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("GET /healthz", a.health)
 	mux.HandleFunc("GET /", a.dashboard)
+	a.registerServiceRoutes(mux)
 	return mux
 }
 

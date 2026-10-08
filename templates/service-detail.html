@@ -1,0 +1,13 @@
+{{define "service-detail.html"}}
+{{template "head" .}}
+<div class="app-shell">{{template "sidebar" .}}<main class="main">{{template "header" .}}
+<section class="content narrow">
+  <a class="back-link" href="/services">← All services</a>
+  {{if .Error}}<div class="alert error">{{.Error}}</div>{{end}}
+  <article class="panel detail-card">
+    <div class="detail-heading"><div><p class="eyebrow">Service #{{.Service.ID}}</p><h2>{{.Service.Name}}</h2></div><span class="badge status-{{statusClass .Service.Status}}">{{.Service.Status}}</span></div>
+    <p class="detail-description">{{.Service.Description}}</p>
+    <dl class="detail-grid"><div><dt>Owner / team</dt><dd>{{.Service.OwnerTeam}}</dd></div><div><dt>Created</dt><dd>{{formatDate .Service.CreatedAt}}</dd></div><div><dt>Last updated</dt><dd>{{formatDate .Service.UpdatedAt}}</dd></div></dl>
+    <div class="form-actions split"><form method="post" action="/services/{{.Service.ID}}/delete" onsubmit="return confirm('Delete this service?')"><button class="button danger" type="submit">Delete service</button></form><a class="button primary" href="/services/{{.Service.ID}}/edit">Edit service</a></div>
+  </article>
+</section></main></div>{{template "foot" .}}{{end}}

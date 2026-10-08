@@ -1,0 +1,15 @@
+{{define "service-form.html"}}
+{{template "head" .}}
+<div class="app-shell">{{template "sidebar" .}}<main class="main">{{template "header" .}}
+<section class="content narrow">
+  <a class="back-link" href="{{if .IsEdit}}/services/{{.Service.ID}}{{else}}/services{{end}}">← Back to services</a>
+  <form class="panel form-card" method="post" action="{{if .IsEdit}}/services/{{.Service.ID}}{{else}}/services{{end}}">
+    <div class="form-intro"><p class="eyebrow">Service catalog</p><h2>{{if .IsEdit}}Update service details{{else}}Monitor a new service{{end}}</h2><p>Services are the customer-facing and internal systems affected by incidents.</p></div>
+    {{with index .Errors "form"}}<div class="alert error">{{.}}</div>{{end}}
+    <div class="field"><label for="name">Service name</label><input id="name" name="name" maxlength="100" required value="{{.Service.Name}}" placeholder="e.g. Search API"><small class="field-error">{{index .Errors "name"}}</small></div>
+    <div class="field"><label for="owner_team">Owner / team</label><input id="owner_team" name="owner_team" maxlength="100" required value="{{.Service.OwnerTeam}}" placeholder="e.g. Platform Engineering"><small class="field-error">{{index .Errors "owner_team"}}</small></div>
+    <div class="field"><label for="description">Description</label><textarea id="description" name="description" maxlength="1000" required rows="5" placeholder="What does this service do?">{{.Service.Description}}</textarea><small class="field-error">{{index .Errors "description"}}</small></div>
+    <div class="field"><label for="status">Current status</label><select id="status" name="status" required>{{range .Statuses}}<option value="{{.}}" {{if eq $.Service.Status .}}selected{{end}}>{{.}}</option>{{end}}</select><small class="field-error">{{index .Errors "status"}}</small><small>Active incidents can automatically override this status.</small></div>
+    <div class="form-actions"><a class="button secondary" href="/services">Cancel</a><button class="button primary" type="submit">{{if .IsEdit}}Save changes{{else}}Create service{{end}}</button></div>
+  </form>
+</section></main></div>{{template "foot" .}}{{end}}

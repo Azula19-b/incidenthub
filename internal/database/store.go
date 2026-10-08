@@ -103,3 +103,4 @@ func (s *Store) Migrate(ctx context.Context) error {
 }
 
 var ErrNotFound = errors.New("record not found")
+var ErrConflict = errors.New("record conflicts with existing data")

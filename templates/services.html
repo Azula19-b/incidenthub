@@ -1,0 +1,16 @@
+{{define "services.html"}}
+{{template "head" .}}
+<div class="app-shell">{{template "sidebar" .}}<main class="main">{{template "header" .}}
+<section class="content">
+  {{if .Notice}}<div class="alert success">Service changes saved successfully.</div>{{end}}
+  <div class="section-toolbar">
+    <form class="filters" method="get" action="/services">
+      <label>Status <select name="status" onchange="this.form.submit()"><option value="">All statuses</option>{{range .Statuses}}<option value="{{.}}" {{if eq $.SelectedStatus (printf "%s" .)}}selected{{end}}>{{.}}</option>{{end}}</select></label>
+    </form>
+    <a class="button primary" href="/services/new">Add service</a>
+  </div>
+  <div class="panel table-panel">
+    <div class="table-wrap"><table><thead><tr><th>Service</th><th>Owner / team</th><th>Status</th><th>Last updated</th><th></th></tr></thead>
+    <tbody>{{range .Services}}<tr><td><a class="record-title" href="/services/{{.ID}}">{{.Name}}</a><small>{{.Description}}</small></td><td>{{.OwnerTeam}}</td><td><span class="badge status-{{statusClass .Status}}">{{.Status}}</span></td><td>{{formatDate .UpdatedAt}}</td><td><a class="table-action" href="/services/{{.ID}}">View →</a></td></tr>{{else}}<tr><td colspan="5"><div class="empty-state compact"><h3>No matching services</h3><p>Adjust the status filter or add a new service.</p></div></td></tr>{{end}}</tbody></table></div>
+  </div>
+</section></main></div>{{template "foot" .}}{{end}}

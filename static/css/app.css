@@ -64,6 +64,51 @@ h1, h2, h3, .brand { font-family: Manrope, Inter, sans-serif; }
 .empty-state h3 { margin: 8px 0 3px; color: var(--text); font-size: 15px; }
 .empty-state p { margin: 0; }
 .menu-button { display: none; border: 0; background: transparent; font-size: 22px; }
+.section-toolbar, .filters, .form-actions, .detail-heading { display: flex; align-items: center; gap: 14px; }
+.section-toolbar { justify-content: space-between; margin-bottom: 18px; }
+.filters label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-weight: 600; }
+input, textarea, select { width: 100%; border: 1px solid #cbd9e5; border-radius: 9px; background: white; padding: 10px 12px; color: var(--text); font: inherit; outline: none; transition: border .2s, box-shadow .2s; }
+input:focus, textarea:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(22,139,255,.12); }
+.filters select { min-width: 190px; }
+.table-panel { padding: 0; overflow: hidden; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fbfd; color: #71839a; font-size: 11px; text-align: left; text-transform: uppercase; letter-spacing: .08em; }
+th, td { padding: 15px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:hover { background: #f8fbff; }
+.record-title { color: var(--text); font-weight: 700; }
+td small { display: block; color: var(--muted); max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.table-action { white-space: nowrap; font-weight: 600; }
+.badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 9px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.status-operational { color: #087f6d; background: #ddfaf3; }
+.status-degraded-performance { color: #9a6200; background: #fff4cf; }
+.status-partial-outage { color: #c25313; background: #ffeadb; }
+.status-major-outage { color: #ba2636; background: #ffe3e7; }
+.status-maintenance { color: #3156a3; background: #e8efff; }
+.narrow { max-width: 900px; }
+.back-link { display: inline-block; margin-bottom: 16px; font-weight: 600; }
+.form-card, .detail-card { padding: 28px; }
+.form-intro { margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+.form-intro h2 { margin-bottom: 6px; }
+.form-intro p:last-child { color: var(--muted); }
+.field { margin-bottom: 18px; }
+.field label { display: block; margin-bottom: 6px; font-weight: 700; }
+.field > small { display: block; color: var(--muted); margin-top: 5px; }
+.field .field-error { color: var(--danger); }
+.form-actions { justify-content: flex-end; padding-top: 8px; }
+.form-actions.split { justify-content: space-between; margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
+.button.secondary { background: #eaf1f7; color: #31445d; }
+.button.danger { background: #fff0f1; color: #c62e3e; }
+.alert { border-radius: 10px; padding: 12px 15px; margin-bottom: 18px; font-weight: 600; }
+.alert.success { background: #e8faf5; color: #087f6d; border: 1px solid #bceadd; }
+.alert.error { background: #fff0f1; color: #b42335; border: 1px solid #ffcdd3; }
+.detail-heading { justify-content: space-between; }
+.detail-heading h2 { margin: 0; font-size: 24px; }
+.detail-description { color: var(--muted); font-size: 15px; margin: 20px 0 26px; }
+.detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 0; }
+.detail-grid div { background: #f7fafc; border-radius: 10px; padding: 14px; }
+.detail-grid dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+.detail-grid dd { margin: 5px 0 0; font-weight: 700; }
 
 @media (max-width: 1000px) {
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
@@ -79,4 +124,7 @@ h1, h2, h3, .brand { font-family: Manrope, Inter, sans-serif; }
   .content { padding: 20px 16px 38px; }
   .metric-grid { grid-template-columns: 1fr; }
   .status-banner .updated { display: none; }
+  .section-toolbar { align-items: stretch; flex-direction: column; }
+  .filters, .filters label { width: 100%; }
+  .detail-grid { grid-template-columns: 1fr; }
 }
