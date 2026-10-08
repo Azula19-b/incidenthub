@@ -23,6 +23,14 @@ type pageData struct {
 	Now         time.Time
 }
 
+type dashboardPageData struct {
+	pageData
+	Metrics           models.DashboardMetrics
+	RecentIncidents   []models.Incident
+	Services          []models.Service
+	SeverityBreakdown []models.SeverityMetric
+}
+
 var serviceStatuses = []models.ServiceStatus{
 	models.StatusOperational,
 	models.StatusDegraded,
@@ -40,6 +48,18 @@ func New(databasePath string) (*App, error) {
 		},
 		"formatDate":      func(value time.Time) string { return value.Format("Jan 2, 2006") },
 		"formatTimestamp": func(value time.Time) string { return value.Format("Jan 2, 2006 · 3:04 PM") },
+		"formatHours": func(value float64) string {
+			if value < 1 {
+				return fmt.Sprintf("%.0f min", value*60)
+			}
+			return fmt.Sprintf("%.1f hrs", value)
+		},
+		"percent": func(value, total int) float64 {
+			if total == 0 {
+				return 0
+			}
+			return float64(value) * 100 / float64(total)
+		},
 		"containsID": func(ids []int64, id int64) bool {
 			for _, value := range ids {
 				if value == id {
@@ -75,6 +95,7 @@ func (a *App) Routes() http.Handler {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("GET /healthz", a.health)
 	mux.HandleFunc("GET /", a.dashboard)
+	mux.HandleFunc("GET /analytics", a.analytics)
 	a.registerServiceRoutes(mux)
 	a.registerIncidentRoutes(mux)
 	return mux
@@ -85,11 +106,45 @@ func (a *App) dashboard(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	a.render(w, "dashboard.html", pageData{
-		Title:       "Operations Dashboard",
-		CurrentPage: "dashboard",
-		Now:         time.Now(),
+	metrics, err := a.store.DashboardMetrics(r.Context())
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	incidents, err := a.store.ListIncidents(r.Context(), database.IncidentFilter{})
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	if len(incidents) > 5 {
+		incidents = incidents[:5]
+	}
+	services, err := a.store.ListServices(r.Context(), "")
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	analytics, err := a.store.Analytics(r.Context())
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	a.render(w, "dashboard.html", dashboardPageData{
+		pageData: pageData{Title: "Operations Dashboard", CurrentPage: "dashboard", Now: time.Now()},
+		Metrics:  metrics, RecentIncidents: incidents, Services: services, SeverityBreakdown: analytics.SeverityDistribution,
 	})
+}
+
+func (a *App) analytics(w http.ResponseWriter, r *http.Request) {
+	analytics, err := a.store.Analytics(r.Context())
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	a.render(w, "analytics.html", struct {
+		pageData
+		Analytics models.Analytics
+	}{pageData: pageData{Title: "Incident Analytics", CurrentPage: "analytics"}, Analytics: analytics})
 }
 
 func (a *App) health(w http.ResponseWriter, _ *http.Request) {

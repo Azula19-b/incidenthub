@@ -61,3 +61,37 @@ type TimelineUpdate struct {
 	Status     IncidentStatus
 	CreatedAt  time.Time
 }
+
+type SeverityMetric struct {
+	Severity   Severity
+	Count      int
+	Percentage float64
+}
+
+type ServiceIncidentMetric struct {
+	ServiceID   int64
+	ServiceName string
+	Count       int
+	Percentage  float64
+}
+
+type Analytics struct {
+	TotalIncidents       int
+	ActiveIncidents      int
+	ResolvedIncidents    int
+	AverageResolutionHrs float64
+	CreatedLast7Days     int
+	CreatedLast30Days    int
+	MostAffectedService  string
+	SeverityDistribution []SeverityMetric
+	IncidentsByService   []ServiceIncidentMetric
+}
+
+type DashboardMetrics struct {
+	ActiveIncidents   int
+	CriticalIncidents int
+	ResolvedIncidents int
+	MonitoredServices int
+	OverallStatus     ServiceStatus
+	AverageResolution float64
+}

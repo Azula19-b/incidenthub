@@ -2,32 +2,33 @@
 {{template "head" .}}
 <div class="app-shell">
   {{template "sidebar" .}}
-  <main class="main">
-    {{template "header" .}}
+  <main class="main">{{template "header" .}}
     <section class="content">
-      <div class="status-banner healthy">
-        <div><span class="status-icon">✓</span></div>
-        <div><p class="eyebrow">Current platform status</p><h2>All systems are operational</h2></div>
-        <span class="updated">Updated just now</span>
+      <div class="status-banner status-{{statusClass .Metrics.OverallStatus}}">
+        <div><span class="status-icon">{{if eq .Metrics.OverallStatus "Operational"}}✓{{else}}!{{end}}</span></div>
+        <div><p class="eyebrow">Current platform status</p><h2>{{.Metrics.OverallStatus}}</h2></div>
+        <a class="updated" href="/status">Open public status page →</a>
       </div>
       <section class="metric-grid" aria-label="Incident summary">
-        <article class="metric-card"><span>Active incidents</span><strong>—</strong><small>Live database metric</small></article>
-        <article class="metric-card critical"><span>Critical incidents</span><strong>—</strong><small>SEV-1 attention required</small></article>
-        <article class="metric-card"><span>Resolved</span><strong>—</strong><small>Resolution history</small></article>
-        <article class="metric-card"><span>Monitored services</span><strong>—</strong><small>Across all teams</small></article>
+        <article class="metric-card"><span>Active incidents</span><strong>{{.Metrics.ActiveIncidents}}</strong><small>Currently in response</small></article>
+        <article class="metric-card critical"><span>Critical incidents</span><strong>{{.Metrics.CriticalIncidents}}</strong><small>Active SEV-1 incidents</small></article>
+        <article class="metric-card"><span>Resolved incidents</span><strong>{{.Metrics.ResolvedIncidents}}</strong><small>Historical resolutions</small></article>
+        <article class="metric-card"><span>Monitored services</span><strong>{{.Metrics.MonitoredServices}}</strong><small>Across engineering teams</small></article>
       </section>
       <section class="two-column">
-        <article class="panel">
+        <article class="panel dashboard-panel">
           <div class="panel-header"><div><p class="eyebrow">Live operations</p><h2>Recent incidents</h2></div><a href="/incidents">View all</a></div>
-          <div class="empty-state"><span>◎</span><h3>Database integration next</h3><p>Incident activity will appear here as the platform is configured.</p></div>
+          <div class="incident-list">{{range .RecentIncidents}}<a href="/incidents/{{.ID}}"><span class="severity-indicator severity-{{statusClass .Severity}}"></span><div><strong>{{.Title}}</strong><small>{{range $i, $s := .Services}}{{if $i}} · {{end}}{{$s.Name}}{{end}}</small></div><span class="badge incident-{{statusClass .Status}}">{{.Status}}</span></a>{{else}}<div class="empty-state compact"><h3>No incident history</h3></div>{{end}}</div>
         </article>
-        <article class="panel">
+        <article class="panel dashboard-panel">
           <div class="panel-header"><div><p class="eyebrow">Infrastructure</p><h2>Service health</h2></div><a href="/services">Manage</a></div>
-          <div class="empty-state compact"><span>◇</span><h3>No services monitored yet</h3><p>Add a service to begin tracking its health.</p></div>
+          <div class="health-list">{{range .Services}}<a href="/services/{{.ID}}"><span class="health-dot status-{{statusClass .Status}}"></span><div><strong>{{.Name}}</strong><small>{{.OwnerTeam}}</small></div><span class="badge status-{{statusClass .Status}}">{{.Status}}</span></a>{{end}}</div>
         </article>
+      </section>
+      <section class="two-column lower-grid">
+        <article class="panel dashboard-panel"><div class="panel-header"><div><p class="eyebrow">Risk profile</p><h2>Severity distribution</h2></div></div><div class="distribution">{{range .SeverityBreakdown}}<div><span class="badge severity-{{statusClass .Severity}}">{{.Severity}}</span><div class="bar-track"><span class="bar severity-{{statusClass .Severity}}" style="width: {{.Percentage}}%"></span></div><strong>{{.Count}}</strong></div>{{end}}</div></article>
+        <article class="panel resolution-card"><p class="eyebrow">Response performance</p><strong>{{formatHours .Metrics.AverageResolution}}</strong><span>Average incident resolution time</span><a href="/analytics">Explore analytics →</a></article>
       </section>
     </section>
   </main>
-</div>
-{{template "foot" .}}
-{{end}}
+</div>{{template "foot" .}}{{end}}
