@@ -1,0 +1,8 @@
+{{define "incident-detail.html"}}{{template "head" .}}
+<div class="app-shell">{{template "sidebar" .}}<main class="main">{{template "header" .}}<section class="content">
+<a class="back-link" href="/incidents">← All incidents</a>{{if .Notice}}<div class="alert success">Incident saved successfully.</div>{{end}}
+<article class="panel incident-hero"><div class="detail-heading"><div><p class="eyebrow">INC-{{printf "%04d" .Incident.ID}}</p><h2>{{.Incident.Title}}</h2></div><div class="badge-stack"><span class="badge severity-{{statusClass .Incident.Severity}}">{{.Incident.Severity}}</span><span class="badge incident-{{statusClass .Incident.Status}}">{{.Incident.Status}}</span></div></div>
+<p class="detail-description">{{.Incident.Description}}</p><div class="affected-services"><strong>Affected services</strong>{{range .Incident.Services}}<a class="service-chip" href="/services/{{.ID}}">{{.Name}}</a>{{end}}</div>
+<dl class="detail-grid four"><div><dt>Reporter</dt><dd>{{.Incident.Reporter}}</dd></div><div><dt>Assigned owner</dt><dd>{{.Incident.AssignedOwner}}</dd></div><div><dt>Started</dt><dd>{{formatTimestamp .Incident.CreatedAt}}</dd></div><div><dt>Resolved</dt><dd>{{if .Incident.ResolvedAt}}{{formatTimestamp .Incident.ResolvedAt}}{{else}}Active{{end}}</dd></div></dl>
+<div class="form-actions split"><form method="post" action="/incidents/{{.Incident.ID}}/delete" onsubmit="return confirm('Permanently delete this incident and its timeline?')"><button class="button danger" type="submit">Delete incident</button></form><a class="button primary" href="/incidents/{{.Incident.ID}}/edit">Edit incident</a></div></article>
+</section></main></div>{{template "foot" .}}{{end}}

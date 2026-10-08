@@ -38,7 +38,16 @@ func New(databasePath string) (*App, error) {
 			class = strings.NewReplacer(" ", "-", "-", "").Replace(class)
 			return class
 		},
-		"formatDate": func(value time.Time) string { return value.Format("Jan 2, 2006") },
+		"formatDate":      func(value time.Time) string { return value.Format("Jan 2, 2006") },
+		"formatTimestamp": func(value time.Time) string { return value.Format("Jan 2, 2006 · 3:04 PM") },
+		"containsID": func(ids []int64, id int64) bool {
+			for _, value := range ids {
+				if value == id {
+					return true
+				}
+			}
+			return false
+		},
 	}
 	templates, err := template.New("pages").Funcs(functions).ParseGlob("templates/*.html")
 	if err != nil {
@@ -63,6 +72,7 @@ func (a *App) Routes() http.Handler {
 	mux.HandleFunc("GET /healthz", a.health)
 	mux.HandleFunc("GET /", a.dashboard)
 	a.registerServiceRoutes(mux)
+	a.registerIncidentRoutes(mux)
 	return mux
 }
 

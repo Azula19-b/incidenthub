@@ -109,6 +109,29 @@ td small { display: block; color: var(--muted); max-width: 420px; white-space: n
 .detail-grid div { background: #f7fafc; border-radius: 10px; padding: 14px; }
 .detail-grid dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
 .detail-grid dd { margin: 5px 0 0; font-weight: 700; }
+.section-note { margin: 0; color: var(--muted); }
+.severity-sev1 { background: #ffe0e5; color: #b42335; }
+.severity-sev2 { background: #ffe9dc; color: #bd4f10; }
+.severity-sev3 { background: #fff2c6; color: #936000; }
+.severity-sev4 { background: #e7f0ff; color: #315da9; }
+.incident-investigating { background: #ffe4e8; color: #b42335; }
+.incident-identified { background: #fff0dc; color: #a75d08; }
+.incident-monitoring { background: #e4efff; color: #245ca8; }
+.incident-resolved { background: #ddfaf3; color: #087f6d; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.service-picker { margin: 0 0 20px; padding: 0; border: 0; }
+.service-picker legend { margin-bottom: 8px; font-weight: 700; }
+.checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.checkbox-grid label { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+.checkbox-grid label:hover { border-color: #9ecfff; background: #f7fbff; }
+.checkbox-grid input { width: auto; margin-top: 4px; accent-color: var(--blue); }
+.checkbox-grid span, .checkbox-grid strong, .checkbox-grid small { display: block; }
+.checkbox-grid small { color: var(--muted); }
+.incident-hero { padding: 28px; }
+.badge-stack { display: flex; gap: 8px; }
+.affected-services { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0 24px; }
+.service-chip { border-radius: 999px; padding: 6px 10px; background: #eaf4ff; color: #2267ad; font-weight: 600; font-size: 12px; }
+.detail-grid.four { grid-template-columns: repeat(4, 1fr); }
 
 @media (max-width: 1000px) {
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
@@ -127,4 +150,6 @@ td small { display: block; color: var(--muted); max-width: 420px; white-space: n
   .section-toolbar { align-items: stretch; flex-direction: column; }
   .filters, .filters label { width: 100%; }
   .detail-grid { grid-template-columns: 1fr; }
+  .form-grid, .checkbox-grid { grid-template-columns: 1fr; }
+  .detail-grid.four { grid-template-columns: 1fr 1fr; }
 }

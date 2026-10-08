@@ -1,0 +1,8 @@
+{{define "incidents.html"}}{{template "head" .}}
+<div class="app-shell">{{template "sidebar" .}}<main class="main">{{template "header" .}}<section class="content">
+{{if .Notice}}<div class="alert success">Incident changes saved successfully.</div>{{end}}
+<div class="section-toolbar"><div><p class="section-note">Track active response work and historical incidents.</p></div><a class="button primary" href="/incidents/new">Report incident</a></div>
+<div class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>Incident</th><th>Severity</th><th>Status</th><th>Affected services</th><th>Owner</th><th>Created</th><th></th></tr></thead><tbody>
+{{range .Incidents}}<tr><td><a class="record-title" href="/incidents/{{.ID}}">INC-{{printf "%04d" .ID}} · {{.Title}}</a><small>{{.Description}}</small></td><td><span class="badge severity-{{statusClass .Severity}}">{{.Severity}}</span></td><td><span class="badge incident-{{statusClass .Status}}">{{.Status}}</span></td><td>{{range $i, $s := .Services}}{{if $i}}, {{end}}{{$s.Name}}{{end}}</td><td>{{.AssignedOwner}}</td><td>{{formatDate .CreatedAt}}</td><td><a class="table-action" href="/incidents/{{.ID}}">View →</a></td></tr>
+{{else}}<tr><td colspan="7"><div class="empty-state compact"><h3>No incidents found</h3><p>Report an incident when a service needs attention.</p></div></td></tr>{{end}}</tbody></table></div></div>
+</section></main></div>{{template "foot" .}}{{end}}
