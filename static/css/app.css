@@ -132,6 +132,17 @@ td small { display: block; color: var(--muted); max-width: 420px; white-space: n
 .affected-services { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0 24px; }
 .service-chip { border-radius: 999px; padding: 6px 10px; background: #eaf4ff; color: #2267ad; font-weight: 600; font-size: 12px; }
 .detail-grid.four { grid-template-columns: repeat(4, 1fr); }
+.timeline-layout { display: grid; grid-template-columns: 1.45fr .75fr; gap: 22px; margin-top: 22px; align-items: start; }
+.timeline-panel, .update-card { padding: 22px; }
+.timeline { list-style: none; margin: 0; padding: 22px 0 0 18px; }
+.timeline li { position: relative; border-left: 2px solid #dceaf5; padding: 0 0 25px 24px; }
+.timeline li:last-child { padding-bottom: 0; }
+.timeline-dot { position: absolute; width: 12px; height: 12px; left: -7px; top: 4px; border: 3px solid white; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 2px #a9d4ff; }
+.timeline-meta { display: flex; align-items: center; gap: 10px; }
+.timeline-meta time { color: var(--muted); font-size: 12px; }
+.timeline p { margin: 9px 0 0; }
+.update-card h2 { margin-bottom: 20px; font-size: 18px; }
+.button.full { width: 100%; }
 
 @media (max-width: 1000px) {
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
@@ -152,4 +163,5 @@ td small { display: block; color: var(--muted); max-width: 420px; white-space: n
   .detail-grid { grid-template-columns: 1fr; }
   .form-grid, .checkbox-grid { grid-template-columns: 1fr; }
   .detail-grid.four { grid-template-columns: 1fr 1fr; }
+  .timeline-layout { grid-template-columns: 1fr; }
 }

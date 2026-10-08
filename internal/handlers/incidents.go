@@ -34,6 +34,9 @@ type incidentFormData struct {
 type incidentDetailData struct {
 	pageData
 	Incident models.Incident
+	Updates  []models.TimelineUpdate
+	Statuses []models.IncidentStatus
+	Errors   map[string]string
 	Notice   string
 }
 
@@ -45,6 +48,7 @@ func (a *App) registerIncidentRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /incidents/{id}/edit", a.editIncident)
 	mux.HandleFunc("POST /incidents/{id}", a.updateIncident)
 	mux.HandleFunc("POST /incidents/{id}/delete", a.deleteIncident)
+	mux.HandleFunc("POST /incidents/{id}/timeline", a.addTimelineUpdate)
 }
 
 func (a *App) listIncidents(w http.ResponseWriter, r *http.Request) {
@@ -78,6 +82,10 @@ func (a *App) createIncident(w http.ResponseWriter, r *http.Request) {
 		a.serverError(w, r, err)
 		return
 	}
+	if err := a.store.RecalculateServiceStatuses(r.Context(), serviceIDs); err != nil {
+		a.serverError(w, r, err)
+		return
+	}
 	http.Redirect(w, r, "/incidents/"+strconv.FormatInt(incident.ID, 10)+"?notice=created", http.StatusSeeOther)
 }
 
@@ -86,10 +94,7 @@ func (a *App) viewIncident(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	a.render(w, "incident-detail.html", incidentDetailData{
-		pageData: pageData{Title: incident.Title, CurrentPage: "incidents"}, Incident: incident,
-		Notice: r.URL.Query().Get("notice"),
-	})
+	a.renderIncidentDetail(w, r, incident, nil)
 }
 
 func (a *App) editIncident(w http.ResponseWriter, r *http.Request) {
@@ -116,12 +121,26 @@ func (a *App) updateIncident(w http.ResponseWriter, r *http.Request) {
 		a.renderIncidentForm(w, r, incident, serviceIDs, validationErrors, true)
 		return
 	}
+	existing, err := a.store.GetIncident(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			a.notFound(w, r)
+		} else {
+			a.serverError(w, r, err)
+		}
+		return
+	}
+	affectedIDs := append(serviceIDsFromIncident(existing), serviceIDs...)
 	if err := a.store.UpdateIncident(r.Context(), incident, serviceIDs); err != nil {
 		if errors.Is(err, database.ErrNotFound) {
 			a.notFound(w, r)
 		} else {
 			a.serverError(w, r, err)
 		}
+		return
+	}
+	if err := a.store.RecalculateServiceStatuses(r.Context(), affectedIDs); err != nil {
+		a.serverError(w, r, err)
 		return
 	}
 	http.Redirect(w, r, "/incidents/"+strconv.FormatInt(id, 10)+"?notice=updated", http.StatusSeeOther)
@@ -133,6 +152,15 @@ func (a *App) deleteIncident(w http.ResponseWriter, r *http.Request) {
 		a.notFound(w, r)
 		return
 	}
+	existing, err := a.store.GetIncident(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			a.notFound(w, r)
+		} else {
+			a.serverError(w, r, err)
+		}
+		return
+	}
 	if err := a.store.DeleteIncident(r.Context(), id); err != nil {
 		if errors.Is(err, database.ErrNotFound) {
 			a.notFound(w, r)
@@ -141,7 +169,70 @@ func (a *App) deleteIncident(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	if err := a.store.RecalculateServiceStatuses(r.Context(), serviceIDsFromIncident(existing)); err != nil {
+		a.serverError(w, r, err)
+		return
+	}
 	http.Redirect(w, r, "/incidents?notice=deleted", http.StatusSeeOther)
+}
+
+func (a *App) addTimelineUpdate(w http.ResponseWriter, r *http.Request) {
+	incident, ok := a.incidentFromRequest(w, r)
+	if !ok {
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	message := strings.TrimSpace(r.FormValue("message"))
+	status := models.IncidentStatus(r.FormValue("status"))
+	validationErrors := make(map[string]string)
+	if message == "" {
+		validationErrors["message"] = "Timeline message is required."
+	} else if len([]rune(message)) > 1000 {
+		validationErrors["message"] = "Timeline message must be 1000 characters or fewer."
+	}
+	if !validation.ValidIncidentStatus(status) {
+		validationErrors["timeline_status"] = "Select a valid incident status."
+	}
+	if len(validationErrors) > 0 {
+		a.renderIncidentDetail(w, r, incident, validationErrors)
+		return
+	}
+	if err := a.store.AddTimelineUpdate(r.Context(), incident.ID, message, status); err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			a.notFound(w, r)
+		} else {
+			a.serverError(w, r, err)
+		}
+		return
+	}
+	if err := a.store.RecalculateServiceStatuses(r.Context(), serviceIDsFromIncident(incident)); err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	http.Redirect(w, r, "/incidents/"+strconv.FormatInt(incident.ID, 10)+"?notice=timeline", http.StatusSeeOther)
+}
+
+func (a *App) renderIncidentDetail(w http.ResponseWriter, r *http.Request, incident models.Incident, validationErrors map[string]string) {
+	updates, err := a.store.ListTimeline(r.Context(), incident.ID)
+	if err != nil {
+		a.serverError(w, r, err)
+		return
+	}
+	a.render(w, "incident-detail.html", incidentDetailData{
+		pageData: pageData{Title: incident.Title, CurrentPage: "incidents"}, Incident: incident,
+		Updates: updates, Statuses: incidentStatuses, Errors: validationErrors, Notice: r.URL.Query().Get("notice"),
+	})
+}
+
+func serviceIDsFromIncident(incident models.Incident) []int64 {
+	ids := make([]int64, 0, len(incident.Services))
+	for _, service := range incident.Services {
+		ids = append(ids, service.ID)
+	}
+	return ids
 }
 
 func (a *App) renderIncidentForm(w http.ResponseWriter, r *http.Request, incident models.Incident, selected []int64, validationErrors map[string]string, edit bool) {

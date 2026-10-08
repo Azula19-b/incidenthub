@@ -61,6 +61,10 @@ func New(databasePath string) (*App, error) {
 		store.Close()
 		return nil, err
 	}
+	if err := store.RecalculateAllServiceStatuses(context.Background()); err != nil {
+		store.Close()
+		return nil, err
+	}
 	return &App{templates: templates, store: store}, nil
 }
 

@@ -164,6 +164,14 @@ func (s *Store) UpdateIncident(ctx context.Context, incident models.Incident, se
 	if err := linkIncidentServices(ctx, tx, incident.ID, serviceIDs); err != nil {
 		return err
 	}
+	if existing.Status != incident.Status {
+		message := "Incident status changed to " + string(incident.Status) + "."
+		if _, err := tx.ExecContext(ctx, `INSERT INTO timeline_updates
+            (incident_id, message, status, created_at) VALUES (?, ?, ?, ?)`,
+			incident.ID, message, incident.Status, formatTime(now)); err != nil {
+			return fmt.Errorf("record incident status change: %w", err)
+		}
+	}
 	return tx.Commit()
 }
 

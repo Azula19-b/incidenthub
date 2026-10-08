@@ -5,4 +5,12 @@
 <p class="detail-description">{{.Incident.Description}}</p><div class="affected-services"><strong>Affected services</strong>{{range .Incident.Services}}<a class="service-chip" href="/services/{{.ID}}">{{.Name}}</a>{{end}}</div>
 <dl class="detail-grid four"><div><dt>Reporter</dt><dd>{{.Incident.Reporter}}</dd></div><div><dt>Assigned owner</dt><dd>{{.Incident.AssignedOwner}}</dd></div><div><dt>Started</dt><dd>{{formatTimestamp .Incident.CreatedAt}}</dd></div><div><dt>Resolved</dt><dd>{{if .Incident.ResolvedAt}}{{formatTimestamp .Incident.ResolvedAt}}{{else}}Active{{end}}</dd></div></dl>
 <div class="form-actions split"><form method="post" action="/incidents/{{.Incident.ID}}/delete" onsubmit="return confirm('Permanently delete this incident and its timeline?')"><button class="button danger" type="submit">Delete incident</button></form><a class="button primary" href="/incidents/{{.Incident.ID}}/edit">Edit incident</a></div></article>
+<section class="timeline-layout">
+  <article class="panel timeline-panel"><div class="panel-header"><div><p class="eyebrow">Response log</p><h2>Incident timeline</h2></div></div>
+    <ol class="timeline">{{range .Updates}}<li><span class="timeline-dot"></span><div><div class="timeline-meta"><span class="badge incident-{{statusClass .Status}}">{{.Status}}</span><time>{{formatTimestamp .CreatedAt}}</time></div><p>{{.Message}}</p></div></li>{{else}}<li><p>No timeline updates yet.</p></li>{{end}}</ol>
+  </article>
+  <aside class="panel update-card"><p class="eyebrow">Communicate progress</p><h2>Add timeline update</h2>
+    <form method="post" action="/incidents/{{.Incident.ID}}/timeline"><div class="field"><label for="timeline_status">Status</label><select id="timeline_status" name="status">{{range .Statuses}}<option value="{{.}}" {{if eq $.Incident.Status .}}selected{{end}}>{{.}}</option>{{end}}</select><small class="field-error">{{index .Errors "timeline_status"}}</small></div><div class="field"><label for="message">Update message</label><textarea id="message" name="message" maxlength="1000" required rows="6" placeholder="What changed, what did the team learn, or what happens next?"></textarea><small class="field-error">{{index .Errors "message"}}</small></div><button class="button primary full" type="submit">Publish update</button></form>
+  </aside>
+</section>
 </section></main></div>{{template "foot" .}}{{end}}
